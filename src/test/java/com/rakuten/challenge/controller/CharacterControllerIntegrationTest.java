@@ -2,28 +2,23 @@ package com.rakuten.challenge.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rakuten.challenge.controller.CharacterController;
 import com.rakuten.challenge.dto.CharacterDto;
-import com.rakuten.challenge.exception.ResourceNotFoundException;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.Assert.*;
-import static org.springframework.boot.actuate.autoconfigure.cloudfoundry.SecurityResponse.success;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
@@ -39,32 +34,22 @@ public class CharacterControllerIntegrationTest {
 
     private String requestJson;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    public void setup() throws JsonProcessingException {
         characterDtoRequest = new CharacterDto("My Character", 30, "dwarf", "barbarian");
-        try {
-            requestJson = new ObjectMapper().writeValueAsString(characterDtoRequest);
-        } catch (JsonProcessingException e) {
-            fail();
-        }
+        requestJson = new ObjectMapper().writeValueAsString(characterDtoRequest);
     }
 
     @Test
-    public void testCreateCharacter() {
-        CharacterDto responseDto = null;
-        MvcResult mvcResponse = null;
-        try {
-            mvcResponse = mockMvc.perform(MockMvcRequestBuilders
-                    .post("/character-management/characters")
-                    .content(requestJson)
-                    .contentType(MediaType.APPLICATION_JSON))
-                    .andDo(print())
-                    .andExpect(status().isCreated()).andReturn();
+    public void testCreateCharacter() throws Exception {
+        MvcResult mvcResponse = mockMvc.perform(MockMvcRequestBuilders
+                .post("/character-management/characters")
+                .content(requestJson)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isCreated()).andReturn();
 
-            responseDto = new ObjectMapper().readValue(mvcResponse.getResponse().getContentAsString(), CharacterDto.class);
-        } catch (Exception e) {
-            fail();
-        }
+        CharacterDto responseDto = new ObjectMapper().readValue(mvcResponse.getResponse().getContentAsString(), CharacterDto.class);
 
         assertNotNull(mvcResponse);
         assertNotNull(mvcResponse.getResponse());
@@ -76,17 +61,11 @@ public class CharacterControllerIntegrationTest {
     }
 
     @Test
-    public void testViewCharacterInfoNotFound() {
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.
-                    get("/character-management/characters/{name}", "name")
-                    .contentType(MediaType.APPLICATION_JSON))
-                    .andDo(print())
-                    .andExpect(status().isNotFound());
-        } catch (ResourceNotFoundException e) {
-            success();
-        } catch (Exception e) {
-            fail();
-        }
+    public void testViewCharacterInfoNotFound() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.
+                get("/character-management/characters/{name}", "name")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isNotFound());
     }
 }

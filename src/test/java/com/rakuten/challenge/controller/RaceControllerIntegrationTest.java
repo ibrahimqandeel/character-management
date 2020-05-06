@@ -1,29 +1,22 @@
 package com.rakuten.challenge.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rakuten.challenge.controller.RaceController;
-import com.rakuten.challenge.dto.AllClassesDto;
 import com.rakuten.challenge.dto.AllRacesDto;
 import com.rakuten.challenge.service.RaceService;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.transaction.annotation.Transactional;
 
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
 public class RaceControllerIntegrationTest {
@@ -38,26 +31,18 @@ public class RaceControllerIntegrationTest {
     private RaceService raceService;
 
     @Test
-    public void testGetRaces() {
+    public void testGetRaces() throws Exception {
 
-        AllRacesDto responseDto = null;
-        MvcResult mvcResponse = null;
-        try {
-            mvcResponse = mockMvc.perform(MockMvcRequestBuilders
-                    .get("/character-management/races")
-                    .contentType(MediaType.APPLICATION_JSON))
-                    .andDo(print())
-                    .andExpect(status().isOk()).andReturn();
+        MvcResult mvcResponse = mockMvc.perform(MockMvcRequestBuilders
+                .get("/character-management/races")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk()).andReturn();
 
-            responseDto = new ObjectMapper().readValue(mvcResponse.getResponse().getContentAsString(), AllRacesDto.class);
-        } catch (Exception e) {
-            fail();
-        }
+        AllRacesDto responseDto = new ObjectMapper().readValue(mvcResponse.getResponse().getContentAsString(), AllRacesDto.class);
 
-        assertNotNull(mvcResponse);
-        assertNotNull(mvcResponse.getResponse());
-        assertThat(responseDto.getCount(), greaterThanOrEqualTo(0));
+        assertNotNull(responseDto);
+        assertTrue(responseDto.getCount() >= 0);
         assertNotNull(responseDto.getResults());
-        assertThat(responseDto.getResults().size(), greaterThanOrEqualTo(0));
     }
 }
