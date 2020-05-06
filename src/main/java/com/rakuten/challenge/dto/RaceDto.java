@@ -13,18 +13,7 @@ public class RaceDto {
 
     private String index;
     private String name;
-    private int speed;
     private String url;
-
-//    public RaceDto() {
-//    }
-//
-//    public RaceDto(String index, String name, int speed, String url) {
-//        this.index = index;
-//        this.name = name;
-//        this.speed = speed;
-//        this.url = url;
-//    }
 
     @Override
     public boolean equals(Object o) {

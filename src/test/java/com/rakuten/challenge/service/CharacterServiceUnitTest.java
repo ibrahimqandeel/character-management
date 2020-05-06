@@ -46,7 +46,7 @@ public class CharacterServiceUnitTest {
         MockitoAnnotations.initMocks(this);
         expectedCharacterEntity = new CharacterEntity("TestName", 30, "RaceIndex", "ClassIndex");
         expectedCharacterDto = new CharacterDto("TestName", 30, "RaceIndex", "ClassIndex");
-        expectedRaceDto = new RaceDto("RaceIndex", "RaceName", 120, "");
+        expectedRaceDto = new RaceDto("RaceIndex", "RaceName", "");
         expectedClassDto = new ClassDto("ClassIndex", "ClassName", "");
 
         when(characterRepo.existsByName(any(String.class))).thenReturn(false);
