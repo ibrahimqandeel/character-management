@@ -1,7 +1,10 @@
 package com.rakuten.challenge.controller;
 
 import com.rakuten.challenge.dto.CharacterDto;
-import com.rakuten.challenge.exception.*;
+import com.rakuten.challenge.exception.BadRequestException;
+import com.rakuten.challenge.exception.InternalServerException;
+import com.rakuten.challenge.exception.ResourceDuplicationException;
+import com.rakuten.challenge.exception.ResourceNotFoundException;
 import com.rakuten.challenge.service.CharacterService;
 import com.rakuten.challenge.service.ClassService;
 import com.rakuten.challenge.service.RaceService;
@@ -10,8 +13,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,12 +25,14 @@ import java.util.Optional;
 @RequestMapping("/character-management/characters")
 @Api(value = "Characters Endpoints")
 public class CharacterController extends AppRestController {
-    private CharacterService characterService;
-    private RaceService raceService;
-    private ClassService classService;
+    private final CharacterService characterService;
+    private final RaceService raceService;
+    private final ClassService classService;
 
-    public CharacterController(CharacterService characterService) {
+    public CharacterController(CharacterService characterService, RaceService raceService, ClassService classService) {
         this.characterService = characterService;
+        this.raceService = raceService;
+        this.classService = classService;
     }
 
     @ApiOperation(value = "Create New Character")
@@ -43,7 +46,7 @@ public class CharacterController extends AppRestController {
         String characterName = characterDto.getName();
         try {
             characterDto = characterService.createCharacter(characterDto);
-            return new ResponseEntity<CharacterDto>(characterDto, HttpStatus.CREATED);
+            return new ResponseEntity<>(characterDto, HttpStatus.CREATED);
         } catch (ResourceDuplicationException ex) {
             throw generateExceptionDetailsWithParam(ex, "error.character.name.exist", HttpStatus.CONFLICT.value(), new String[]{characterName});
         } catch (BadRequestException ex) {
@@ -60,7 +63,7 @@ public class CharacterController extends AppRestController {
     public ResponseEntity<CharacterDto> viewCharacterInfo(@PathVariable String name) throws ResourceNotFoundException, InternalServerException {
         try {
             Optional<CharacterDto> characterDto = characterService.getByName(name);
-            return new ResponseEntity<CharacterDto>(characterDto.get(), HttpStatus.OK);
+            return new ResponseEntity<>(characterDto.get(), HttpStatus.OK);
         } catch (ResourceNotFoundException ex) {
             throw generateExceptionDetailsWithParam(ex, "error.general.resource.notFound", HttpStatus.NOT_FOUND.value(), new String[]{name});
         }

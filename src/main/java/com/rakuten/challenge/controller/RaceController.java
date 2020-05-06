@@ -1,7 +1,6 @@
 package com.rakuten.challenge.controller;
 
 import com.rakuten.challenge.dto.AllRacesDto;
-import com.rakuten.challenge.exception.BusinessException;
 import com.rakuten.challenge.exception.ResourceNotFoundException;
 import com.rakuten.challenge.service.RaceService;
 import io.swagger.annotations.Api;
@@ -9,8 +8,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,7 +36,7 @@ public class RaceController extends AppRestController {
     public ResponseEntity<AllRacesDto> getRaces() throws ResourceNotFoundException {
         try {
             Optional<AllRacesDto> allRacesDto = raceService.getRaces();
-            return new ResponseEntity<AllRacesDto>(allRacesDto.get(), HttpStatus.OK);
+            return new ResponseEntity<>(allRacesDto.get(), HttpStatus.OK);
         } catch (ResourceNotFoundException ex) {
             throw generateExceptionDetails(ex, "error.general.resource.notFound", HttpStatus.NOT_FOUND.value());
         }
