@@ -52,13 +52,11 @@ To monitor and manage your application
 
 |  URL |  Method |
 |----------|--------------|
-|`http://localhost:8081`  						| GET |
-|`http://localhost:8081/actuator/`             | GET |
-|`http://localhost:8081/actuator/health`    	| GET |
-|`http://localhost:8081/actuator/info`      	| GET |
-|`http://localhost:8081/actuator/prometheus`| GET |
-|`http://localhost:8081/actuator/httptrace` | GET |
+|`https://character-management.herokuapp.com/actuator/health`    	| GET |
+|`https://character-management.herokuapp.com/actuator/info`      	| GET |
+|`https://character-management.herokuapp.com/actuator/prometheus`| GET |
+|`https://character-management.herokuapp.com/actuator/httptrace` | GET |
 
 ## Documentation
 
-* [Swagger](http://localhost:8081/swagger-ui.html) - Documentation & Testing
+* [Swagger](https://character-management.herokuapp.com/swagger-ui.html) - Documentation & Testing
