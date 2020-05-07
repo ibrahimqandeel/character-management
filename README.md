@@ -54,8 +54,6 @@ To monitor and manage your application
 |----------|--------------|
 |`https://character-management.herokuapp.com/actuator/health`    	| GET |
 |`https://character-management.herokuapp.com/actuator/info`      	| GET |
-|`https://character-management.herokuapp.com/actuator/prometheus`| GET |
-|`https://character-management.herokuapp.com/actuator/httptrace` | GET |
 
 ## Documentation
 
