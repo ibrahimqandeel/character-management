@@ -5,7 +5,8 @@ import com.rakuten.challenge.dto.AllClassesDto;
 import com.rakuten.challenge.dto.AllSpellsDto;
 import com.rakuten.challenge.dto.ClassDto;
 import com.rakuten.challenge.dto.StartingEquipmentDto;
-import com.rakuten.challenge.exception.ResourceNotFoundException;
+import com.rakuten.challenge.exception.BusinessException;
+import com.rakuten.challenge.exception.ErrorMessageCode;
 import com.rakuten.challenge.service.ClassService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
@@ -24,40 +25,40 @@ public class ClassServiceImpl implements ClassService {
 
     @Override
     @Cacheable(value = "classes")
-    public Optional<AllClassesDto> getClasses() throws ResourceNotFoundException {
+    public Optional<AllClassesDto> getClasses() throws BusinessException {
         Optional<AllClassesDto> allClassesDto = classAPIClient.getClasses();
         if (!allClassesDto.isPresent()) {
-            throw new ResourceNotFoundException();
+            throw new BusinessException(ErrorMessageCode.RESOURCE_NOT_FOUND_ERROR);
         }
         return allClassesDto;
     }
 
     @Override
     @Cacheable(value = "classes", key = "#index")
-    public Optional<ClassDto> getClassInfo(String index) throws ResourceNotFoundException {
+    public Optional<ClassDto> getClassInfo(String index) throws BusinessException {
         Optional<ClassDto> classDto = classAPIClient.getClassInfo(index);
         if (!classDto.isPresent()) {
-            throw new ResourceNotFoundException();
+            throw new BusinessException(ErrorMessageCode.RESOURCE_NOT_FOUND_ERROR, new String[]{index});
         }
         return classDto;
     }
 
     @Override
     @Cacheable(value = "equipments", key = "#classIndex")
-    public Optional<StartingEquipmentDto> getClassStartingEquipment(String classIndex) throws ResourceNotFoundException {
+    public Optional<StartingEquipmentDto> getClassStartingEquipment(String classIndex) throws BusinessException {
         Optional<StartingEquipmentDto> startingEquipment = classAPIClient.getClassStartingEquipment(classIndex);
         if (!startingEquipment.isPresent()) {
-            throw new ResourceNotFoundException();
+            throw new BusinessException(ErrorMessageCode.RESOURCE_NOT_FOUND_ERROR, new String[]{classIndex});
         }
         return startingEquipment;
     }
 
     @Override
     @Cacheable(value = "spells", key = "#classIndex")
-    public Optional<AllSpellsDto> getClassSpells(String classIndex) throws ResourceNotFoundException {
+    public Optional<AllSpellsDto> getClassSpells(String classIndex) throws BusinessException {
         Optional<AllSpellsDto> allSpellsDto = classAPIClient.getClassStartingSpells(classIndex);
         if (!allSpellsDto.isPresent()) {
-            throw new ResourceNotFoundException();
+            throw new BusinessException(ErrorMessageCode.RESOURCE_NOT_FOUND_ERROR, new String[]{classIndex});
         }
         return allSpellsDto;
     }

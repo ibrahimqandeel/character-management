@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.util.Locale;
+
 @Slf4j
 @ControllerAdvice
 public class AppExceptionHandler extends ResponseEntityExceptionHandler {
@@ -23,13 +25,29 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
     private String errorMessageKey = "error.general.message";
     private String errorMessage = "";
 
+    @ExceptionHandler(value = BusinessException.class)
+    public ResponseEntity<Object> handleBusinessException(BusinessException businessEx, WebRequest request) {
+        ErrorMessageDTO errorMessageDTO = buildResponse(businessEx, request);
+        return new ResponseEntity<>(errorMessageDTO, new HttpHeaders(), HttpStatus.valueOf(businessEx.getErrorMessageCode().getCode()));
+    }
+
+    private ErrorMessageDTO buildResponse(BusinessException businessEx, WebRequest request) {
+        String customMessage = messageSource.getMessage(businessEx.getErrorMessageCode().getMessageKey(), businessEx.getParams(), Locale.ENGLISH);
+        return ErrorMessageDTO.builder()
+                .setStatus(businessEx.getErrorMessageCode().getCode())
+                .setMessageKey(businessEx.getErrorMessageCode().getMessageKey())
+                .setMessage(customMessage)
+                .setServiceUri(request.getDescription(false))
+                .setException(businessEx.getClass().getSimpleName());
+    }
+
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        errorMessage = getGeneralErrorMessage("error.general.bad.request");
+        errorMessage = messageSource.getMessage("error.general.bad.request", null, Locale.ENGLISH);
         ErrorMessageDTO errorMessageDTO = ErrorMessageDTO.builder()
                 .setStatus(HttpStatus.BAD_REQUEST.value())
-                .setMessageKey(errorMessageKey)
+                .setMessageKey("error.general.bad.request")
                 .setMessage(errorMessage)
                 .setServiceUri(request.getDescription(false))
                 .setException(ex.getClass().getSimpleName());
@@ -43,7 +61,7 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = Exception.class)
     public ResponseEntity<Object> handleAny(Exception ex, WebRequest request) {
-        errorMessage = getGeneralErrorMessage(errorMessageKey);
+        errorMessage = messageSource.getMessage(errorMessageKey, null, Locale.ENGLISH);
         ErrorMessageDTO errorMessageDTO = ErrorMessageDTO.builder()
                 .setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .setMessageKey(errorMessageKey)
@@ -58,15 +76,9 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(errorMessageDTO, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ExceptionHandler(value = BusinessException.class)
-    public ResponseEntity<Object> handleBusinessException(BusinessException businessEx, WebRequest request) {
-        ErrorMessageDTO errorMessageDTO = buildResponse(businessEx, request);
-        return new ResponseEntity<>(errorMessageDTO, new HttpHeaders(), HttpStatus.valueOf(businessEx.getHttpStatus()));
-    }
-
-    private String getGeneralErrorMessage(String messageKey) {
-        return messageSource.getMessage(messageKey, null, null);
-    }
+//    private String getGeneralErrorMessage(String messageKey) {
+//        return messageSource.getMessage(messageKey, null, Locale.ENGLISH);
+//    }
 
     private String getExceptionName(Exception ex) {
         if (ex.getLocalizedMessage() != null) {
@@ -81,14 +93,4 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
             return "Unknown Error!";
         }
     }
-
-    private ErrorMessageDTO buildResponse(BusinessException businessEx, WebRequest request) {
-        return ErrorMessageDTO.builder()
-                .setStatus(businessEx.getHttpStatus())
-                .setMessageKey(businessEx.getMessageKey())
-                .setMessage(businessEx.getMessage())
-                .setServiceUri(request.getDescription(false))
-                .setException(businessEx.getClass().getSimpleName());
-    }
-
 }
