@@ -2,10 +2,8 @@ package com.rakuten.challenge.serviceImpl;
 
 import com.rakuten.challenge.dto.*;
 import com.rakuten.challenge.entity.CharacterEntity;
-import com.rakuten.challenge.exception.BadRequestException;
-import com.rakuten.challenge.exception.InternalServerException;
-import com.rakuten.challenge.exception.ResourceDuplicationException;
-import com.rakuten.challenge.exception.ResourceNotFoundException;
+import com.rakuten.challenge.exception.BusinessException;
+import com.rakuten.challenge.exception.ErrorMessageCode;
 import com.rakuten.challenge.repo.CharacterRepo;
 import com.rakuten.challenge.service.CharacterService;
 import com.rakuten.challenge.service.ClassService;
@@ -33,10 +31,10 @@ public class CharacterServiceImpl implements CharacterService {
     }
 
     @Override
-    public CharacterDto createCharacter(CharacterDto newCharacterDto) throws ResourceDuplicationException, BadRequestException, InternalServerException {
+    public CharacterDto createCharacter(CharacterDto newCharacterDto) throws BusinessException {
         boolean isCharacterNameExist = characterRepo.existsByName(newCharacterDto.getName());
         if (isCharacterNameExist) {
-            throw new ResourceDuplicationException();
+            throw new BusinessException(ErrorMessageCode.CHARACTER_NAME_DUPLICATION, new String[]{newCharacterDto.getName()});
         }
         CharacterEntity newCharacterEntity;
         try {
@@ -46,7 +44,7 @@ public class CharacterServiceImpl implements CharacterService {
                     "CharacterDto",
                     "CharacterEntity",
                     newCharacterDto);
-            throw new BadRequestException();
+            throw new BusinessException(ErrorMessageCode.BAD_REQUEST_ERROR);
         }
 
         newCharacterEntity = characterRepo.save(newCharacterEntity);
@@ -57,17 +55,17 @@ public class CharacterServiceImpl implements CharacterService {
                     "CharacterEntity",
                     "CharacterDto",
                     newCharacterEntity);
-            throw new InternalServerException();
+            throw new BusinessException(ErrorMessageCode.UNABLE_TO_BUILD_RESPONSE);
         }
 
         return newCharacterDto;
     }
 
     @Override
-    public Optional<CharacterDto> getByName(String name) throws ResourceNotFoundException, InternalServerException {
+    public Optional<CharacterDto> getByName(String name) throws BusinessException {
         Optional<CharacterEntity> entityRec = characterRepo.findByName(name);
         if (!entityRec.isPresent()) {
-            throw new ResourceNotFoundException();
+            throw new BusinessException(ErrorMessageCode.CHARACTER_NOT_FOUND_ERROR, new String[]{name});
         }
         try {
             CharacterDto characterDto = modelMapper.map(entityRec.get(), CharacterDto.class);
@@ -90,7 +88,7 @@ public class CharacterServiceImpl implements CharacterService {
             return Optional.of(characterDto);
         } catch (MappingException ex) {
             log.error("Error: Mapping Exception. Unable to map From: {} object. To: {} object. source object: {} ", "CharacterEntity", "CharacterDto", entityRec.get());
-            throw new InternalServerException();
+            throw new BusinessException(ErrorMessageCode.UNABLE_TO_BUILD_RESPONSE);
         }
     }
 }

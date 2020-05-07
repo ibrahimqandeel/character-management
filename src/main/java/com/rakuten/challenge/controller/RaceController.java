@@ -1,7 +1,7 @@
 package com.rakuten.challenge.controller;
 
 import com.rakuten.challenge.dto.AllRacesDto;
-import com.rakuten.challenge.exception.ResourceNotFoundException;
+import com.rakuten.challenge.exception.BusinessException;
 import com.rakuten.challenge.service.RaceService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -20,7 +20,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/character-management/races")
 @Api(value = "Races Endpoints")
-public class RaceController extends AppRestController {
+public class RaceController {
     private RaceService raceService;
 
     public RaceController(RaceService raceService) {
@@ -33,13 +33,8 @@ public class RaceController extends AppRestController {
             @ApiResponse(code = 404, message = "Races Not Found")
     })
     @GetMapping
-    public ResponseEntity<AllRacesDto> getRaces() throws ResourceNotFoundException {
-        try {
-            Optional<AllRacesDto> allRacesDto = raceService.getRaces();
-            return new ResponseEntity<>(allRacesDto.get(), HttpStatus.OK);
-        } catch (ResourceNotFoundException ex) {
-            throw generateExceptionDetails(ex, "error.general.resource.notFound", HttpStatus.NOT_FOUND.value());
-        }
-
+    public ResponseEntity<AllRacesDto> getRaces() throws BusinessException {
+        Optional<AllRacesDto> allRacesDto = raceService.getRaces();
+        return new ResponseEntity<>(allRacesDto.get(), HttpStatus.OK);
     }
 }
