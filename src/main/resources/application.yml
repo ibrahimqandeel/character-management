@@ -1,0 +1,48 @@
+server:
+  port: ${PORT:8081}
+
+spring:
+  application:
+    name: character-management
+  datasource:
+    driverClassName: org.h2.Driver
+    password: admin
+    url: jdbc:h2:mem:challengedb
+    username: admin
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 10000
+        readTimeout: 10000
+
+cache:
+  evict:
+    delay:
+      seconds: 3600000
+    rate:
+      seconds: 3600000
+
+logging:
+  file:
+    name: character-management.log
+  level:
+    root: info
+#  pattern:
+#    file: '%d{dd-MM-yyyy HH:mm:ss.SSS} [%thread] %-5level %logger{36}.%M - %msg%n'
+
+dnd:
+  base:
+    api:
+      uri: http://www.dnd5eapi.co/api
+  classes:
+    api:
+      name: ClassesAPI
+      uri: ${dnd.base.api.uri}/classes
+  races:
+    api:
+      name: RacesAPI
+      uri: ${dnd.base.api.uri}/races
